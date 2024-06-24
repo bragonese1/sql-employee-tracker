@@ -1,7 +1,7 @@
-const Sequelize = require('sequelize');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const sequelize = new Sequelize(
+const pool = new Pool(
   process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
@@ -11,4 +11,4 @@ const sequelize = new Sequelize(
   }
 );
 
-module.exports = sequelize;
+module.exports = pool;
