@@ -83,4 +83,103 @@ const viewAllDepartments = () => {
       })
       .catch(err => console.error(err));
   };
+
+  // Adding department, role, and employee to the db
+    
+  const addDepartment = () => {
+    // Ask user for department name and add it to the db
+    inquirer.prompt({
+      type: 'input',
+      name: 'name',
+      message: 'Please enter the department:'
+    }).then(({ name }) => {
+      // add department to db
+      db.none('INSERT INTO department (name) VALUES ($1)', [name])
+        .then(() => {
+          console.log(`Department: ${name} has been added`); // message that department was added successful
+          startTracker(); 
+        })
+        .catch(err => console.error(err));
+    });
+  };
   
+  const addRole = () => {
+    // Ask user for role specifics and add it to the db
+    db.any('SELECT * FROM department')
+      .then(departments => {
+        inquirer.prompt([
+          {
+            type: 'input',
+            name: 'title',
+            message: 'Please enter the role:'
+          },
+          {
+            type: 'input',
+            name: 'salary',
+            message: 'Please enter the salary:'
+          },
+          {
+            type: 'list',
+            name: 'department_id',
+            message: 'Please select the department:',
+            choices: departments.map(department => ({
+              name: department.name,
+              value: department.id
+            }))
+          }
+        ]).then(({ title, salary, department_id }) => {
+          // add role to db
+          db.none('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [title, salary, department_id])
+            .then(() => {
+              console.log(`Role: ${title} has been added`); // Message that a role was added successfully
+              startTracker(); 
+            })
+            .catch(err => console.error(err));
+                });
+  
+  const addEmployee = () => {
+    // Asking user for employee info to add them to the db
+    db.any('SELECT * FROM role')
+      .then(roles => {
+        db.any('SELECT * FROM employee')
+          .then(employees => {
+            inquirer.prompt([
+              {
+                type: 'input',
+                name: 'first_name',
+                message: 'Please enter a first name:'
+              },
+              {
+                type: 'input',
+                name: 'last_name',
+                message: 'Please enter a last name:'
+              },
+              {
+                type: 'list',
+                name: 'role_id',
+                message: 'Please select a role:',
+                choices: roles.map(role => ({
+                  name: role.title,
+                  value: role.id
+                }))
+              },
+              {
+                type: 'list',
+                name: 'manager_id',
+                message: 'Please select the manager:',
+                choices: [{ name: 'None', value: null }].concat(employees.map(employee => ({
+                  name: `${employee.first_name} ${employee.last_name}`,
+                  value: employee.id
+                })))
+              }
+            ]).then(({ first_name, last_name, role_id, manager_id }) => {
+              // add employee into db
+              db.none('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [first_name, last_name, role_id, manager_id])
+                .then(() => {
+                  console.log(`Employee: ${first_name} ${last_name} has been added`); // Message that employee was added
+                  startTracker();
+                })
+                .catch(err => console.error(err));
+                
+                    });
+                        });
