@@ -13,7 +13,7 @@ INSERT INTO role (title, salary, department_id) VALUES
 ('Lead Engineer', 180000, 2),
 ('Accountant', 90000, 3),
 ('Account Manager', 120000, 3),
-('Legal Lead', 285000, 4)
+('Legal Lead', 285000, 4),
 ('Lawyer', 185000, 4);
 
 -- Insert values into the department table

@@ -1,6 +1,6 @@
 // Importing the inquirer package and connecting to db connection.js
 const inquirer = require('inquirer'); 
-const db = require('./db/connection');
+const db = require('./config/connection.js');
 
  // Function to start the inquirer prompt for user
 const startTracker = () => {
@@ -46,7 +46,7 @@ const startTracker = () => {
 
 const viewAllDepartments = () => {
     // Display all departments
-    db.any('SELECT * FROM department')
+    db.query('SELECT * FROM department')
       .then(departments => {
         console.table(departments);
         startTracker();
@@ -56,7 +56,7 @@ const viewAllDepartments = () => {
   
   const viewAllRoles = () => {
     // Display all roles
-    db.any(`
+    db.query(`
       SELECT role.id, role.title, role.salary, department.name AS department
       FROM role
       LEFT JOIN department ON role.department_id = department.id
@@ -70,7 +70,7 @@ const viewAllDepartments = () => {
   
   const viewAllEmployees = () => {
     // Display all employees
-    db.any(`
+    db.query(`
       SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
       FROM employee
       LEFT JOIN role ON employee.role_id = role.id
@@ -105,7 +105,7 @@ const viewAllDepartments = () => {
   
   const addRole = () => {
     // Ask user for role specifics and add it to the db
-    db.any('SELECT * FROM department')
+    db.query('SELECT * FROM department')
       .then(departments => {
         inquirer.prompt([
           {
@@ -135,13 +135,16 @@ const viewAllDepartments = () => {
               startTracker(); 
             })
             .catch(err => console.error(err));
-                });
+        });
+      })
+      .catch(err => console.error(err));
+  };
   
   const addEmployee = () => {
     // Asking user for employee info to add them to the db
-    db.any('SELECT * FROM role')
+    db.query('SELECT * FROM role')
       .then(roles => {
-        db.any('SELECT * FROM employee')
+        db.query('SELECT * FROM employee')
           .then(employees => {
             inquirer.prompt([
               {
@@ -180,6 +183,14 @@ const viewAllDepartments = () => {
                   startTracker();
                 })
                 .catch(err => console.error(err));
-                
-                    });
-                        });
+            });
+          })
+          .catch(err => console.error(err));
+      })
+      .catch(err => console.error(err));
+  };
+
+  
+  module.exports = startTracker;
+  
+  startTracker();
