@@ -38,7 +38,7 @@ const startTracker = () => {
       case 'Update an employee role':
         return updateEmployeeRole();
       case 'Exit':
-        db.$pool.end(); // end connection with the db
+        db.end(); // end connection with the db
         process.exit(); // exit inquirer
     }
   });
