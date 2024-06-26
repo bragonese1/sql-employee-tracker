@@ -20,9 +20,9 @@ const startTracker = () => {
       'Update an employee role',
       'Exit' 
     ]
-  }).then(({ action }) => {
+  }).then(answer => {
     // Using the switch statment to handle the user's choice and returning the function selected
-    switch (action) {
+    switch (answer.action) {
       case 'View all departments':
         return viewAllDepartments();
       case 'View all roles':
@@ -47,8 +47,8 @@ const startTracker = () => {
 const viewAllDepartments = () => {
     // Display all departments
     db.query('SELECT * FROM department')
-      .then(departments => {
-        console.table(departments);
+      .then(res => {
+        console.table(res.rows);
         startTracker();
       })
       .catch(err => console.error(err));
@@ -61,8 +61,8 @@ const viewAllDepartments = () => {
       FROM role
       LEFT JOIN department ON role.department_id = department.id
     `)
-      .then(roles => {
-        console.table(roles);
+      .then(res => {
+        console.table(res.rows);
         startTracker();
       })
       .catch(err => console.error(err));
@@ -77,8 +77,8 @@ const viewAllDepartments = () => {
       LEFT JOIN department ON role.department_id = department.id
       LEFT JOIN employee manager ON manager.id = employee.manager_id
     `)
-      .then(employees => {
-        console.table(employees);
+      .then(res => {
+        console.table(res.rows);
         startTracker();
       })
       .catch(err => console.error(err));
@@ -106,7 +106,8 @@ const viewAllDepartments = () => {
   const addRole = () => {
     // Ask user for role specifics and add it to the db
     db.query('SELECT * FROM department')
-      .then(departments => {
+      .then(res => {
+        const departments = res.rows; // storing departments to be fetched from db and fix array error
         inquirer.prompt([
           {
             type: 'input',
@@ -143,9 +144,11 @@ const viewAllDepartments = () => {
   const addEmployee = () => {
     // Asking user for employee info to add them to the db
     db.query('SELECT * FROM role')
-      .then(roles => {
+      .then(roleRes => {
+        const roles = roleRes.rows; // storing roles to be fetched, fixing array error
         db.query('SELECT * FROM employee')
-          .then(employees => {
+          .then(empRes => {
+            const employees = empRes.rows; // storing employees to be fetched from db and fix array error
             inquirer.prompt([
               {
                 type: 'input',
@@ -192,13 +195,14 @@ const viewAllDepartments = () => {
 
 
 const updateEmployeeRole = () => {
-  db.query('SELECT * FROM employee')
+  db.query('SELECT * FROM employee') // query to fetch all employees
     .then(empRes => {
-      const employees = empRes.rows;
-      db.query('SELECT * FROM role')
+      const employees = empRes.rows; //storing employees to fix array error
+      db.query('SELECT * FROM role') //query to fetch all roles
         .then(roleRes => {
-          const roles = roleRes.rows;
-          inquirer.prompt([
+          const roles = roleRes.rows; //storing roles to fix array error
+          // ask user questions
+          inquirer.prompt([ 
             {
               type: 'list',
               name: 'employee_id',
@@ -213,11 +217,14 @@ const updateEmployeeRole = () => {
               name: 'role_id',
               message: "Please select the new role:",
               choices: roles.map(role => ({
+                //displaying role titles amnd role ID
                 name: role.title,
                 value: role.id
               }))
             }
           ]).then(({ employee_id, role_id }) => {
+
+          //updating the employee's role
             db.query('UPDATE employee SET role_id = $1 WHERE id = $2', [role_id, employee_id])
               .then(() => {
                 console.log('Employee role has been updated');
