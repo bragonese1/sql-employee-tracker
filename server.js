@@ -94,7 +94,7 @@ const viewAllDepartments = () => {
       message: 'Please enter the department:'
     }).then(({ name }) => {
       // add department to db
-      db.none('INSERT INTO department (name) VALUES ($1)', [name])
+      db.query('INSERT INTO department (name) VALUES ($1)', [name])
         .then(() => {
           console.log(`Department: ${name} has been added`); // message that department was added successful
           startTracker(); 
@@ -129,7 +129,7 @@ const viewAllDepartments = () => {
           }
         ]).then(({ title, salary, department_id }) => {
           // add role to db
-          db.none('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [title, salary, department_id])
+          db.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [title, salary, department_id])
             .then(() => {
               console.log(`Role: ${title} has been added`); // Message that a role was added successfully
               startTracker(); 
@@ -177,7 +177,7 @@ const viewAllDepartments = () => {
               }
             ]).then(({ first_name, last_name, role_id, manager_id }) => {
               // add employee into db
-              db.none('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [first_name, last_name, role_id, manager_id])
+              db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [first_name, last_name, role_id, manager_id])
                 .then(() => {
                   console.log(`Employee: ${first_name} ${last_name} has been added`); // Message that employee was added
                   startTracker();
@@ -190,7 +190,47 @@ const viewAllDepartments = () => {
       .catch(err => console.error(err));
   };
 
-  
-  module.exports = startTracker;
-  
-  startTracker();
+
+const updateEmployeeRole = () => {
+  db.query('SELECT * FROM employee')
+    .then(empRes => {
+      const employees = empRes.rows;
+      db.query('SELECT * FROM role')
+        .then(roleRes => {
+          const roles = roleRes.rows;
+          inquirer.prompt([
+            {
+              type: 'list',
+              name: 'employee_id',
+              message: "Please select the employee's ID:",
+              choices: employees.map(employee => ({
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id
+              }))
+            },
+            {
+              type: 'list',
+              name: 'role_id',
+              message: "Please select the new role:",
+              choices: roles.map(role => ({
+                name: role.title,
+                value: role.id
+              }))
+            }
+          ]).then(({ employee_id, role_id }) => {
+            db.query('UPDATE employee SET role_id = $1 WHERE id = $2', [role_id, employee_id])
+              .then(() => {
+                console.log('Employee role has been updated');
+                startTracker();
+              })
+              .catch(err => console.error(err));
+          });
+        })
+        .catch(err => console.error(err));
+    })
+    .catch(err => console.error(err));
+};
+
+module.exports = startTracker;
+
+startTracker();
