@@ -9,7 +9,7 @@ This tracker allows the user to manage a company's employee database by using th
 ## Table of Contents
 * [Install](#installation)
 * [Usage](#usage)
-* [License](#license)
+* [Links](#links)
 * [Contribution](#contributions)
 * [Tests](#tests)
 * [Questions](#questions)
@@ -20,8 +20,9 @@ Install dependencies using "npm i". Use Postgres to update the database with the
 ## Usage
 Once the application starts, the user will chose the prompt they desire and answer the questions pertaining to that choice. Once complete use select "exit".
 
-## License
-
+## Links
+* [Github Repo](https://github.com/bragonese1/sql-employee-tracker)
+* [Google Drive Video](https://drive.google.com/file/d/1_dGnDZSqUFjXUhrls8hPsjNHxk6Nwnrx/view)
 
 ## Contributions
 Inquirer Package, PG Package, and Postgres. 
